@@ -1553,6 +1553,7 @@ function update() {
     const primases = gs.enzymes.filter(e=>e.type==='primase');
     if (primases.length>=1 && gs.helicaseActive && gs.sep>28 && gs.primaseCount===0) {
         gs.primaseCount=1; primases[0].active=true;
+        gs.primaseActive=true;  // show Active in status panel immediately
         for (let i=LP_START;i<=LP_END;i++) { gs.leadNew[i]=RNA_COMP[gs.seq[i]]; gs.leadIsRNA[i]=true; }
         markDirty();
         gs.stepReady = false;
@@ -1646,6 +1647,7 @@ function update() {
             setTimeout(()=>{ if(!gs||gs.generation!==compGen)return; gs.canvasPause=false; showCompletion(); }, 20000);
         }
     }
+    updateStatusPanel();
     if (gs.stepReady) updateUI();
 }
 // draw() sets needsDraw=false; anything that mutates visible state sets it true.
@@ -1722,7 +1724,8 @@ function setStep(html, sciKey, chipIds, nucs) {
     }
 }
 
-function updateUI() {
+// ── Status panel — always updated regardless of stepReady gate ──────────────
+function updateStatusPanel() {
     if (!gs) return;
     setStat('topoisomeraseStatus','si-topo', gs.topoActive);
     setStat('helicaseStatus',  'si-hel', gs.helicaseActive);
@@ -1731,6 +1734,11 @@ function updateUI() {
     setStat('polymeraseStatus','si-p3',  gs.pol3Active);
     setStat('polIStatus',      'si-p1',  gs.pol1Active);
     setStat('ligaseStatus',    'si-lig', gs.ligaseActive);
+}
+
+function updateUI() {
+    if (!gs) return;
+    updateStatusPanel();
 
     const leadDone=gs.leadCount>=LEAD_DNA_COUNT;
     const lagDone =gs.lagCount>=LAG_DNA_COUNT;
